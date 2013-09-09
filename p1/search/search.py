@@ -89,13 +89,13 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
 
-    visited = set()
+    state = problem.getStartState()
+    visited = set([state])
     stack = util.Stack()
-    stack.push((problem.getStartState(), []))
+    stack.push((state, []))
 
     while not stack.isEmpty():
         state, actions = stack.pop()
-        visited.add(state)
 
         if problem.isGoalState(state):
             return actions
@@ -103,6 +103,7 @@ def depthFirstSearch(problem):
         for successor, action, stepCost in problem.getSuccessors(state):
             if successor not in visited:
                 stack.push((successor, actions + [action]))
+                visited.add(successor)
 
     # XXX: Return an indication of no solution?
 
@@ -110,13 +111,14 @@ def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
-    visited = set()
+
+    state = problem.getStartState()
+    visited = set([state])
     queue = util.Queue()
-    queue.push((problem.getStartState(), []))
+    queue.push((state, []))
 
     while not queue.isEmpty():
         state, actions = queue.pop()
-        visited.add(state)
 
         if problem.isGoalState(state):
             return actions
@@ -124,6 +126,7 @@ def breadthFirstSearch(problem):
         for successor, action, stepCost in problem.getSuccessors(state):
             if successor not in visited:
                 queue.push((successor, actions + [action]))
+                visited.add(successor)
 
     # XXX: Return an indication of no solution?
 
@@ -143,7 +146,8 @@ def uniformCostSearch(problem):
 
         for successor, action, stepCost in problem.getSuccessors(state):
             if successor not in visited:
-                p_queue.push((successor, actions + [action]), stepCost)
+                p_queue.push((successor, actions + [action]),
+                             stepCost + problem.getCostOfActions(actions))
 
     # XXX: Return an indication of no solution?
 
