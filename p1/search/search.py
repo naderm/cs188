@@ -113,7 +113,7 @@ def breadthFirstSearch(problem):
     """
 
     state = problem.getStartState()
-    visited = set([state])
+    visited = set()
     queue = util.Queue()
     queue.push((state, []))
 
@@ -127,6 +127,7 @@ def breadthFirstSearch(problem):
         for successor, action, stepCost in problem.getSuccessors(state):
             if successor not in visited:
                 queue.push((successor, actions + [action]))
+                visited.add(successor)
 
     # XXX: Return an indication of no solution?
 
