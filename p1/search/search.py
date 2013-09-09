@@ -90,7 +90,7 @@ def depthFirstSearch(problem):
     """
 
     state = problem.getStartState()
-    visited = set([state])
+    visited = set()
     stack = util.Stack()
     stack.push((state, []))
 
