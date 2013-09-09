@@ -149,6 +149,7 @@ def uniformCostSearch(problem):
             if successor not in visited:
                 p_queue.push((successor, actions + [action]),
                              stepCost + problem.getCostOfActions(actions))
+                visited.add(successor)
 
     # XXX: Return an indication of no solution?
 
