@@ -110,35 +110,40 @@ def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
-
+    visited = set()
     queue = util.Queue()
     queue.push((problem.getStartState(), []))
 
     while not queue.isEmpty():
         state, actions = queue.pop()
+        visited.add(state)
 
         if problem.isGoalState(state):
             return actions
 
         for successor, action, stepCost in problem.getSuccessors(state):
-            queue.push((successor, actions + [action]))
+            if successor not in visited:
+                queue.push((successor, actions + [action]))
 
     # XXX: Return an indication of no solution?
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
 
+    visited = set()
     p_queue = util.PriorityQueue()
     p_queue.push((problem.getStartState(), []), 0)
 
     while not p_queue.isEmpty():
         state, actions = p_queue.pop()
+        visited.add(state)
 
         if problem.isGoalState(state):
             return actions
 
         for successor, action, stepCost in problem.getSuccessors(state):
-            p_queue.push((successor, actions + [action]), stepCost)
+            if successor not in visited:
+                p_queue.push((successor, actions + [action]), stepCost)
 
     # XXX: Return an indication of no solution?
 
