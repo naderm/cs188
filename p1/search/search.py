@@ -90,16 +90,16 @@ def depthFirstSearch(problem):
     """
 
     stack = util.Stack()
-    stack.push(problem)
+    stack.push((problem.getStartState(), []))
 
     while not stack.isEmpty():
-        prob = stack.pop()
+        state, actions = stack.pop()
 
-        if problem.isGoalState(prob.getStartState()):
-            return prob.actions
+        if problem.isGoalState(state):
+            return actions
 
-        for successor in prob.getSuccessors(prob.getStartState()):
-            stack.push(successor)
+        for successor, action, stepCost in problem.getSuccessors(state):
+            stack.push((successor, actions + [action]))
 
     # XXX: Return an indication of no solution?
 
@@ -109,31 +109,33 @@ def breadthFirstSearch(problem):
     """
 
     queue = util.Queue()
-    queue.push(problem)
+    queue.push((problem.getStartState(), []))
 
     while not queue.isEmpty():
-        prob = queue.pop()
+        state, actions = queue.pop()
 
-        if problem.isGoalState(prob.getStartState()):
-            return prob.actions
+        if problem.isGoalState(state):
+            return actions
 
-        for successor in prob.getSuccessors(prob.getStartState()):
-            queue.push(successor)
+        for successor, action, stepCost in problem.getSuccessors(state):
+            queue.push((successor, actions + [action]))
+
+    # XXX: Return an indication of no solution?
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
 
     p_queue = util.PriorityQueue()
-    p_queue.push(problem, problem.getCostOfActions(problem.getStartState()))
+    p_queue.push((problem.getStartState(), []), 0)
 
     while not p_queue.isEmpty():
-        prob = p_queue.pop()
+        state, actions = p_queue.pop()
 
-        if problem.isGoalState(prob.getStartState()):
-            return prob.actions
+        if problem.isGoalState(state):
+            return actions
 
-        for successor in prob.getSuccessors(prob.getStartState()):
-            p_queue.push(successor, successor.getCostOfActions(successor.actions))
+        for successor, action, stepCost in problem.getSuccessors(state):
+            p_queue.push((successor, actions + [action]), stepCost)
 
     # XXX: Return an indication of no solution?
 
