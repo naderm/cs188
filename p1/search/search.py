@@ -96,6 +96,7 @@ def depthFirstSearch(problem):
 
     while not stack.isEmpty():
         state, actions = stack.pop()
+        visited.add(state)
 
         if problem.isGoalState(state):
             return actions
@@ -103,7 +104,6 @@ def depthFirstSearch(problem):
         for successor, action, stepCost in problem.getSuccessors(state):
             if successor not in visited:
                 stack.push((successor, actions + [action]))
-                visited.add(successor)
 
     # XXX: Return an indication of no solution?
 
@@ -119,6 +119,7 @@ def breadthFirstSearch(problem):
 
     while not queue.isEmpty():
         state, actions = queue.pop()
+        visited.add(state)
 
         if problem.isGoalState(state):
             return actions
@@ -126,7 +127,6 @@ def breadthFirstSearch(problem):
         for successor, action, stepCost in problem.getSuccessors(state):
             if successor not in visited:
                 queue.push((successor, actions + [action]))
-                visited.add(successor)
 
     # XXX: Return an indication of no solution?
 
