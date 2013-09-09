@@ -98,7 +98,7 @@ def depthFirstSearch(problem):
         if problem.isGoalState(prob.getStartState()):
             return prob.actions
 
-        for successor in problem.getSuccessors(prob.getStartState()):
+        for successor in prob.getSuccessors(prob.getStartState()):
             stack.push(successor)
 
     # XXX: Return an indication of no solution?
@@ -107,8 +107,20 @@ def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    queue = util.Queue()
+    queue.push(problem)
+
+    while not queue.isEmpty():
+        prob = queue.pop()
+
+        if problem.isGoalState(prob.getStartState()):
+            return prob.actions
+
+        for successor in prob.getSuccessors(prob.getStartState()):
+            queue.push(successor)
+
+    # XXX: Return an indication of no solution?
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
