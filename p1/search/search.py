@@ -120,12 +120,22 @@ def breadthFirstSearch(problem):
         for successor in prob.getSuccessors(prob.getStartState()):
             queue.push(successor)
 
-    # XXX: Return an indication of no solution?
-
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    p_queue = util.PriorityQueue()
+    p_queue.push(problem, problem.getCostOfActions(problem.getStartState()))
+
+    while not p_queue.isEmpty():
+        prob = p_queue.pop()
+
+        if problem.isGoalState(prob.getStartState()):
+            return prob.actions
+
+        for successor in prob.getSuccessors(prob.getStartState()):
+            p_queue.push(successor, successor.getCostOfActions(successor.actions))
+
+    # XXX: Return an indication of no solution?
 
 def nullHeuristic(state, problem=None):
     """
