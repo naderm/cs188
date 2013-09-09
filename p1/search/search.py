@@ -89,13 +89,16 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
 
-    state = problem.getStartState()
     visited = set()
     stack = util.Stack()
-    stack.push((state, []))
+    stack.push((problem.getStartState(), []))
 
     while not stack.isEmpty():
         state, actions = stack.pop()
+
+        if state in visited:
+            continue
+
         visited.add(state)
 
         if problem.isGoalState(state):
@@ -112,13 +115,16 @@ def breadthFirstSearch(problem):
     Search the shallowest nodes in the search tree first.
     """
 
-    state = problem.getStartState()
     visited = set()
     queue = util.Queue()
-    queue.push((state, []))
+    queue.push((problem.getStartState(), []))
 
     while not queue.isEmpty():
         state, actions = queue.pop()
+
+        if state in visited:
+            continue
+
         visited.add(state)
 
         if problem.isGoalState(state):
@@ -127,7 +133,6 @@ def breadthFirstSearch(problem):
         for successor, action, stepCost in problem.getSuccessors(state):
             if successor not in visited:
                 queue.push((successor, actions + [action]))
-                visited.add(successor)
 
     # XXX: Return an indication of no solution?
 
@@ -140,6 +145,10 @@ def uniformCostSearch(problem):
 
     while not p_queue.isEmpty():
         state, actions = p_queue.pop()
+
+        if state in visited:
+            continue
+
         visited.add(state)
 
         if problem.isGoalState(state):
@@ -149,7 +158,6 @@ def uniformCostSearch(problem):
             if successor not in visited:
                 p_queue.push((successor, actions + [action]),
                              stepCost + problem.getCostOfActions(actions))
-                visited.add(successor)
 
     # XXX: Return an indication of no solution?
 
