@@ -89,17 +89,20 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
 
+    visited = set()
     stack = util.Stack()
     stack.push((problem.getStartState(), []))
 
     while not stack.isEmpty():
         state, actions = stack.pop()
+        visited.add(state)
 
         if problem.isGoalState(state):
             return actions
 
         for successor, action, stepCost in problem.getSuccessors(state):
-            stack.push((successor, actions + [action]))
+            if successor not in visited:
+                stack.push((successor, actions + [action]))
 
     # XXX: Return an indication of no solution?
 
