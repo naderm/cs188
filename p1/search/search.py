@@ -108,8 +108,6 @@ def depthFirstSearch(problem):
             if successor not in visited:
                 stack.push((successor, actions + [action]))
 
-    # XXX: Return an indication of no solution?
-
 def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first.
@@ -134,8 +132,6 @@ def breadthFirstSearch(problem):
             if successor not in visited:
                 queue.push((successor, actions + [action]))
 
-    # XXX: Return an indication of no solution?
-
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
 
@@ -156,10 +152,9 @@ def uniformCostSearch(problem):
 
         for successor, action, stepCost in problem.getSuccessors(state):
             if successor not in visited:
-                p_queue.push((successor, actions + [action]),
-                             stepCost + problem.getCostOfActions(actions))
-
-    # XXX: Return an indication of no solution?
+                p_queue.push(
+                    (successor, actions + [action]),
+                    stepCost + problem.getCostOfActions(actions))
 
 def nullHeuristic(state, problem=None):
     """
@@ -170,9 +165,28 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
+    visited = set()
+    p_queue = util.PriorityQueue()
+    p_queue.push((problem.getStartState(), []), 0)
+
+    while not p_queue.isEmpty():
+        state, actions = p_queue.pop()
+
+        if state in visited:
+            continue
+
+        visited.add(state)
+
+        if problem.isGoalState(state):
+            return actions
+
+        for successor, action, stepCost in problem.getSuccessors(state):
+            if successor not in visited:
+                p_queue.push(
+                    (successor, actions + [action]),
+                    stepCost + problem.getCostOfActions(actions) +
+                    heuristic(successor, problem = problem))
 
 # Abbreviations
 bfs = breadthFirstSearch
