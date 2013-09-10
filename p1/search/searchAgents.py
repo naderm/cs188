@@ -302,16 +302,17 @@ class CornersProblem(search.SearchProblem):
          cost of expanding to that successor
         """
 
+        currentPosition, corners = state
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
-            currentPosition, corners = state
             x,y = currentPosition
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
 
             if not self.walls[nextx][nexty]:
-                nextState = (nextx, nexty), tuple(i for i in corners if i != (nextx, nexty))
+                nextPos = nextx, nexty
+                nextState = nextPos, tuple(i for i in corners if i != nextPos)
                 cost = self.costFn(nextState)
                 successors.append((nextState, action, cost))
 
