@@ -259,10 +259,6 @@ def euclideanHeuristic(position, problem, info={}):
     xy2 = problem.goal
     return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
 
-#####################################################
-# This portion is incomplete.  Time to write code!  #
-#####################################################
-
 class CornersProblem(search.SearchProblem):
     """
     This search problem finds paths through all four corners of a layout.
@@ -288,12 +284,11 @@ class CornersProblem(search.SearchProblem):
 
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
-        return (self.startingPosition, self.corners)
+        return self.startingPosition, self.corners
 
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
-        st, corners = state
-        return not corners
+        return len(state[1]) == 0
 
     def getSuccessors(self, state):
         """
@@ -316,8 +311,7 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
                 nextPos = (nextx, nexty)
-                corners = tuple(i for i in corners if i != nextPos)
-                nextState = (nextPos, corners)
+                nextState = (nextPos, tuple(i for i in corners if i != nextPos))
                 cost= self.costFn(nextPos)
                 successors.append((nextState, action, cost))
         self._expanded += 1
@@ -335,7 +329,6 @@ class CornersProblem(search.SearchProblem):
             x, y = int(x + dx), int(y + dy)
             if self.walls[x][y]: return 999999
         return len(actions)
-
 
 def cornersHeuristic(state, problem):
     """
