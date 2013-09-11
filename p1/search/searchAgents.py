@@ -302,11 +302,11 @@ class CornersProblem(search.SearchProblem):
          cost of expanding to that successor
         """
 
-        currentPosition, corners = state
+        st, corners = state
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
-            x,y = currentPosition
+            x,y = st
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
 
@@ -332,6 +332,9 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+def manhattan_distance(a, b):
+    return sum(abs(i - j) for i, j in zip(a, b))
+
 def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -348,8 +351,10 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    if not state[1]:
+        return 0
+
+    return max(manhattan_distance(corner, state[0]) for corner in state[1])
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
