@@ -1,15 +1,15 @@
 # searchAgents.py
 # ---------------
-# Licensing Information:  You are free to use or extend these projects for
-# educational purposes provided that (1) you do not distribute or publish
-# solutions, (2) you retain this notice, and (3) you provide clear
-# attribution to UC Berkeley, including a link to
+# Licensing Information:  You are free to use or extend these projects for 
+# educational purposes provided that (1) you do not distribute or publish 
+# solutions, (2) you retain this notice, and (3) you provide clear 
+# attribution to UC Berkeley, including a link to 
 # http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
-#
+# 
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero
+# The core projects and autograders were primarily created by John DeNero 
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and
+# Student side autograding was added by Brad Miller, Nick Hay, and 
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
@@ -309,13 +309,11 @@ class CornersProblem(search.SearchProblem):
             x,y = st
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-
             if not self.walls[nextx][nexty]:
-                nextPos = nextx, nexty
-                nextState = nextPos, tuple(i for i in corners if i != nextPos)
-                cost = self.costFn(nextState)
+                nextPos = (nextx, nexty)
+                nextState = (nextPos, tuple(i for i in corners if i != nextPos))
+                cost= self.costFn(nextPos)
                 successors.append((nextState, action, cost))
-
         self._expanded += 1
         return successors
 
@@ -348,8 +346,16 @@ def cornersHeuristic(state, problem):
     on the shortest path from the state to a goal of the problem; i.e.
     it should be admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    # corners = problem.corners # These are the corner coordinates
+    # walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    # currentPosition, currentCorners = state
+    # dist = 0
+    # x,y = currentPosition
+    # for corner in currentCorners:
+    #     x1,y1 = corner
+    #     manhattanDist = abs(x1-x) + abs(y1-y)
+    #     dist = max(dist, manhattanDist)
+    # return dist
 
     if not state[1]:
         return 0
