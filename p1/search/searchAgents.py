@@ -460,10 +460,10 @@ def foodHeuristic(state, problem):
     if not lst:
         return 0
 
+    # Gives 3/4, fast
+    # return max(manhattan_distance(position, i) for i in lst)
     # Gives 5/4, slow
     return max(shortest_path(position, i, problem) for i in lst)
-    # Gives 3/4, fast
-    # return max(manhattan_distance(position, i, problem) for i in lst)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -489,9 +489,7 @@ class ClosestDotSearchAgent(SearchAgent):
         food = gameState.getFood()
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.astar(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -525,9 +523,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         that will complete the problem definition.
         """
         x,y = state
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 ##################
 # Mini-contest 1 #
