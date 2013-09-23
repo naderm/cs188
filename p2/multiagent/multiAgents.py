@@ -87,14 +87,32 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        "*** YOUR CODE HERE ***"
+        food_left = sum(int(j) for i in newFood for j in i)
 
+        if food_left > 0:
+            shortest_food = min([manhattanDistance(newPos, (x, y))
+                                 for x, row in enumerate(newFood)
+                                 for y, food in enumerate(row)
+                                 if food])
+        else:
+            shortest_food = 0
 
-        print newPos
-        print newFood
-        print newGhostStates
-        print newScaredTimes
-        return successorGameState.getScore()
+        if newGhostStates:
+            shortest_ghost = min([manhattanDistance(ghost.getPosition(), newPos)
+                                  for ghost in newGhostStates])
+
+            if shortest_ghost > 3:
+                shortest_ghost = 0
+            elif shortest_ghost == 0:
+                shortest_ghost = -2000
+        else:
+            shortest_ghost = 0
+
+        # print food_left, shortest_food, shortest_ghost, successorGameState.getScore()
+
+        return -shortest_food + 5 * shortest_ghost + \
+          successorGameState.getScore()
+
 
 def scoreEvaluationFunction(currentGameState):
     """
