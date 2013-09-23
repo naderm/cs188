@@ -89,7 +89,7 @@ class ReflexAgent(Agent):
             shortest_ghost = min([manhattanDistance(ghost.getPosition(), newPos)
                                   for ghost in newGhostStates])
 
-            if shortest_ghost > 2:
+            if shortest_ghost > 3:
                 shortest_ghost = 0
             elif shortest_ghost == 0:
                 shortest_ghost = -2000
@@ -98,7 +98,7 @@ class ReflexAgent(Agent):
 
         # print food_left, shortest_food, shortest_ghost, successorGameState.getScore()
 
-        return -food_left - shortest_food + 5 * shortest_ghost + \
+        return -shortest_food + 5 * shortest_ghost + \
           successorGameState.getScore()
 
 
