@@ -90,29 +90,27 @@ class ReflexAgent(Agent):
         food_left = sum(int(j) for i in newFood for j in i)
 
         if food_left > 0:
-            shortest_food = min([manhattanDistance(newPos, (x, y))
-                                 for x, row in enumerate(newFood)
-                                 for y, food in enumerate(row)
-                                 if food])
+            food_distances = [manhattanDistance(newPos, (x, y))
+                              for x, row in enumerate(newFood)
+                              for y, food in enumerate(row)
+                              if food]
+            shortest_food = min(food_distances)
         else:
             shortest_food = 0
 
         if newGhostStates:
-            shortest_ghost = min([manhattanDistance(ghost.getPosition(), newPos)
-                                  for ghost in newGhostStates])
+            ghost_distances = [manhattanDistance(ghost.getPosition(), newPos)
+                               for ghost in newGhostStates]
+            shortest_ghost = min(ghost_distances)
 
-            if shortest_ghost > 3:
-                shortest_ghost = 0
-            elif shortest_ghost == 0:
+            if shortest_ghost == 0:
                 shortest_ghost = -2000
+            else:
+                shortest_ghost = -5 / shortest_ghost
         else:
             shortest_ghost = 0
 
-        # print food_left, shortest_food, shortest_ghost, successorGameState.getScore()
-
-        return -shortest_food + 5 * shortest_ghost + \
-          successorGameState.getScore()
-
+        return -2 * shortest_food + shortest_ghost - 40 * food_left
 
 def scoreEvaluationFunction(currentGameState):
     """
