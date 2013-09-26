@@ -74,7 +74,6 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-
         food_left = sum(int(j) for i in newFood for j in i)
 
         if food_left > 0:
@@ -152,7 +151,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-
         def _search_depth(state, depth, agent):
             if agent == state.getNumAgents():
                 if depth == self.depth:
