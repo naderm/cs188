@@ -202,7 +202,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 # print "  beta ", beta
                 # print "  val  ", val
 
-                if alpha is not None and val <= alpha:
+                if alpha is not None and val < alpha:
                     return val
 
                 beta = val if beta is None else min(beta, val)
@@ -215,7 +215,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         def max_val(state, depth, agent, alpha, beta):
             assert agent == 0
 
-            if depth == self.depth:
+            if depth > self.depth:
                 return self.evaluationFunction(state)
 
             val = None
