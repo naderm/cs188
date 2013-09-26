@@ -284,8 +284,36 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pos = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood()
+    ghosts = currentGameState.getGhostStates()
+
+    food_left = sum(int(j) for i in food for j in i)
+
+    if food_left > 0:
+        food_distances = [
+            manhattanDistance(pos, (x, y))
+            for x, row in enumerate(food)
+            for y, food_bool in enumerate(row)
+            if food_bool
+        ]
+        shortest_food = min(food_distances)
+    else:
+        shortest_food = -200000
+
+    if ghosts:
+        ghost_distances = [manhattanDistance(ghost.getPosition(), pos)
+                           for ghost in ghosts]
+        shortest_ghost = min(ghost_distances)
+
+        if shortest_ghost == 0:
+            shortest_ghost = -200000
+        else:
+            shortest_ghost = -1 / shortest_ghost
+    else:
+        shortest_ghost = 0
+
+    return -2 * shortest_food + 5 * shortest_ghost - 40 * food_left
 
 # Abbreviation
 better = betterEvaluationFunction
