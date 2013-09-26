@@ -220,14 +220,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
             val = None
             for action in state.getLegalActions(agent):
-                successor = min_val(state.generateSuccessor(agent, action), depth, agent + 1, alpha, beta)
+                val = max(val, min_val(state.generateSuccessor(agent, action), depth, agent + 1, alpha, beta))
 
-                if val is None:
-                    val = successor
-                else:
-                    val = max(val, successor)
-
-                if val >= beta:
+                if val > beta:
                     return val
                 alpha = max(alpha, val)
 
