@@ -287,9 +287,11 @@ def betterEvaluationFunction(currentGameState):
     pos = currentGameState.getPacmanPosition()
     food = currentGameState.getFood()
     ghosts = currentGameState.getGhostStates()
+    capsules = currentGameState.getCapsules()
 
     food_left = sum(int(j) for i in food for j in i)
 
+    # Nom them foods
     if food_left > 0:
         food_distances = [
             manhattanDistance(pos, (x, y))
@@ -297,10 +299,14 @@ def betterEvaluationFunction(currentGameState):
             for y, food_bool in enumerate(row)
             if food_bool
         ]
-        shortest_food = min(food_distances)
+        shortest_food = 1 / min(food_distances)
     else:
         shortest_food = -200000
 
+    scared = [ghost for ghost in ghosts if ghost.scaredTimer > 0]
+    ghosts = [ghost for ghost in ghosts if ghost.scaredTimer == 0]
+
+    # Don't let the ghost nom you
     if ghosts:
         ghost_distances = [manhattanDistance(ghost.getPosition(), pos)
                            for ghost in ghosts]
@@ -313,7 +319,40 @@ def betterEvaluationFunction(currentGameState):
     else:
         shortest_ghost = 0
 
-    return -2 * shortest_food + 5 * shortest_ghost - 40 * food_left
+    # Nom them scared ones
+    if scared:
+        scared_distances = [manhattanDistance(ghost.getPosition(), pos)
+                           for ghost in scared]
+        shortest_scared = min(scared_distances)
+
+        if shortest_scared == 0:
+            shorest_scared = -20000
+    else:
+        shortest_scared = 0
+
+    # Nom them capsules
+    capsules_left = len(capsules)
+    if capsules:
+        capsule_distances = [manhattanDistance(capsule, pos)
+                             for capsule in capsules]
+        shortest_capsule = 1 / min(capsule_distances)
+    else:
+        shortest_capsule = 0
+
+    weights = [2, 10, 100, -50, -200, 0]
+    scores = [shortest_food, shortest_capsule, shortest_ghost,
+              food_left, capsules_left, shortest_scared]
+
+    score = sum(i * j  for i, j in zip(scores, weights))
+
+    print "pos\t\t\t", pos
+    print "shortest food\t\t", shortest_food
+    print "food_left\t\t", food_left
+    print "shortest_capsule\t", shortest_capsule
+    print "score\t\t\t", score
+    print
+
+    return score
 
 # Abbreviation
 better = betterEvaluationFunction
