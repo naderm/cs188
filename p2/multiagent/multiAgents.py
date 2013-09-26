@@ -197,11 +197,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 successor = min_val(state.generateSuccessor(agent, action), depth, agent + 1, alpha, beta)
                 val = successor if val is None else min(val, successor)
 
-                # print "min", depth, agent
-                # print "  alpha", alpha
-                # print "  beta ", beta
-                # print "  val  ", val
-
                 if alpha is not None and val < alpha:
                     return val
 
@@ -222,11 +217,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             for action in state.getLegalActions(agent):
                 successor = min_val(state.generateSuccessor(agent, action), depth, agent + 1, alpha, beta)
                 val = max(val, successor)
-
-                # print "max", depth, agent
-                # print "  alpha", alpha
-                # print "  beta ", beta
-                # print "  val  ", val
 
                 if beta is not None and val > beta:
                     return val
