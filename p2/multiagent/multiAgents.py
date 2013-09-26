@@ -197,15 +197,12 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             val = None
             for action in state.getLegalActions(agent):
                 successor = min_val(state.generateSuccessor(agent, action), depth, agent + 1, alpha, beta)
+                val = successor if val is None else min(val, successor)
 
-                if val is None:
-                    val = successor
-                else:
-                    val = min(val, successor)
-
-                if val <= alpha:
+                if alpha is not None and val <= alpha:
                     return val
-                beta = min(beta, val)
+
+                beta = val if best is None else min(beta, val)
 
             if val is None:
                 return self.evaluationFunction(state)
@@ -220,10 +217,12 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
             val = None
             for action in state.getLegalActions(agent):
-                val = max(val, min_val(state.generateSuccessor(agent, action), depth, agent + 1, alpha, beta))
+                successor = min_val(state.generateSuccessor(agent, action), depth, agent + 1, alpha, beta)
+                val = max(val, successor)
 
-                if val > beta:
+                if beta is not None and val > beta:
                     return val
+
                 alpha = max(alpha, val)
 
             if val is None:
