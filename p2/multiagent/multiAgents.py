@@ -1,6 +1,5 @@
 # multiAgents.py
 # --------------
-<<<<<<< Updated upstream
 # Licensing Information:  You are free to use or extend these projects for
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
@@ -11,18 +10,6 @@
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
-=======
-# Licensing Information:  You are free to use or extend these projects for 
-# educational purposes provided that (1) you do not distribute or publish 
-# solutions, (2) you retain this notice, and (3) you provide clear 
-# attribution to UC Berkeley, including a link to 
-# http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
-# 
-# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero 
-# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and 
->>>>>>> Stashed changes
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
@@ -164,12 +151,30 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-        "*** YOUR CODE HERE ***"
-        numAgents = gameState.getNumAgents()
-        maxDepth = self.depth
-        currentDepth = 0
-        
-        util.raiseNotDefined()
+        def _search_depth(state, depth, agent):
+            if agent == state.getNumAgents():
+                if depth == self.depth:
+                    return self.evaluationFunction(state)
+                else:
+                    return _search_depth(state, depth + 1, 0)
+            else:
+                actions = state.getLegalActions(agent)
+
+                if len(actions) == 0:
+                    return self.evaluationFunction(state)
+
+                next_states = (
+                    _search_depth(state.generateSuccessor(agent, action),
+                    depth, agent + 1)
+                    for action in actions
+                    )
+
+                return (max if agent == 0 else min)(next_states)
+
+        return max(
+            gameState.getLegalActions(0),
+            key = lambda x: _search_depth(gameState.generateSuccessor(0, x), 0, 1)
+            )
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
