@@ -175,7 +175,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         return max(
             gameState.getLegalActions(0),
-            key = lambda x: _search_depth(gameState.generateSuccessor(0, x), 0, 1)
+            key = lambda x: _search_depth(gameState.generateSuccessor(0, x), 1, 1)
             )
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
