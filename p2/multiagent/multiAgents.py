@@ -183,12 +183,69 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Your minimax agent with alpha-beta pruning (question 3)
     """
 
+    def _can_prune(agent, alpha, beta, val):
+        return False
+
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def min_val(state, depth, agent, alpha, beta):
+            if agent == state.getNumAgents():
+                return max_val(state, depth + 1, 0, alpha, beta)
+
+            val = None
+            for action in state.getLegalActions(agent):
+                successor = min_val(state.generateSuccessor(agent, action), depth, agent + 1, alpha, beta)
+
+                if val is None:
+                    val = successor
+                else:
+                    val = min(val, successor)
+
+                if val <= alpha:
+                    return val
+                beta = min(beta, val)
+
+            if val is None:
+                return self.evaluationFunction(state)
+
+            return val
+
+        def max_val(state, depth, agent, alpha, beta):
+            assert agent == 0
+
+            if depth == self.depth:
+                return self.evaluationFunction(state)
+
+            val = None
+            for action in state.getLegalActions(agent):
+                successor = min_val(state.generateSuccessor(agent, action), depth, agent + 1, alpha, beta)
+
+                if val is None:
+                    val = successor
+                else:
+                    val = max(val, successor)
+
+                if val >= beta:
+                    return val
+                alpha = max(alpha, val)
+
+            if val is None:
+                return self.evaluationFunction(state)
+
+            return val
+
+        val, alpha, beta, best = None, None, None, None
+        for action in gameState.getLegalActions(0):
+            val = max(val, min_val(gameState.generateSuccessor(0, action), 1, 1, alpha, beta))
+            # if val >= beta: return action
+            if alpha is None:
+                alpha, best = val, action
+            else:
+                alpha, best = max(val, alpha), action if val > alpha else best
+
+        return best
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
