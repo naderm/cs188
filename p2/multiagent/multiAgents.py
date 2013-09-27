@@ -282,7 +282,19 @@ def betterEvaluationFunction(currentGameState):
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
       evaluation function (question 5).
 
-      DESCRIPTION: <write something here so we know what you did>
+      DESCRIPTION: This function evaluates a state based on the sum of six weighted variables:
+      distance to food pellets, ghosts, power pellets, number of power pellets and food pellets left. 
+      More details about the use of each of these values is below.
+
+      Distance to closest ghost is weighted most heavily, followed by distance to closest power pellet with 1/10 of the weight,
+      and distance to food as the last positive weight. Number of power pellets left was strongly negatively weighted, followed by 
+      the number of food pellets left with 1/4 of that negative weight.  
+
+      The reciprocal of the distance to closest food pellet, a close food pellet is a good thing.
+      The negative reciprocal of the distance to the closest ghost, since a close ghost makes the state less desirable.
+      The reciprocal of the distance to the closest power pellet, since a close pellet is also favorable.
+      The number of power pellets left in the game.
+
     """
     pos = currentGameState.getPacmanPosition()
     food = currentGameState.getFood()
