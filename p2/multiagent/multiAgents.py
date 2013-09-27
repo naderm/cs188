@@ -496,9 +496,9 @@ def betterEvaluationFunction(currentGameState):
         shortest_ghost = min(ghost_distances)
 
         if shortest_ghost == 0:
-            shortest_ghost = -200000
+            shortest_ghost = 200000
         else:
-            shortest_ghost = -1 / shortest_ghost
+            shortest_ghost = 1 / shortest_ghost
     else:
         shortest_ghost = 0
 
@@ -509,7 +509,9 @@ def betterEvaluationFunction(currentGameState):
         shortest_scared = min(scared_distances)
 
         if shortest_scared == 0:
-            shortest_scared = -20000
+            shortest_scared = 10
+        else:
+            shortest_scared = 1 / shortest_scared
     else:
         shortest_scared = 0
 
@@ -522,7 +524,7 @@ def betterEvaluationFunction(currentGameState):
     else:
         shortest_capsule = 0
 
-    weights = [2, 1, 10, -50, -50, 1]
+    weights = [5, 10, -5, -50, -50, 10]
     scores = [shortest_food, shortest_capsule, shortest_ghost,
               food_left, capsules_left, shortest_scared]
 
