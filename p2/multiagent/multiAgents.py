@@ -503,17 +503,23 @@ def betterEvaluationFunction(currentGameState):
         shortest_ghost = 0
 
     # Nom them scared ones
+    shortest_scared = 0
     if scared:
         scared_distances = [manhattanDistance(ghost.getPosition(), pos)
                            for ghost in scared]
-        shortest_scared = min(scared_distances)
+        scared_distances = [distance
+                            for ghost, distance in zip(scared, scared_distances)
+                            if distance <= ghost.scaredTimer]
 
-        if shortest_scared == 0:
-            shortest_scared = 10
-        else:
-            shortest_scared = 1 / shortest_scared
-    else:
-        shortest_scared = 0
+        if scared_distances:
+            shortest_scared = min(scared_distances)
+
+
+            if shortest_scared == 0:
+                shortest_scared = 10
+            else:
+                shortest_scared = 1 / shortest_scared
+
 
     # Nom them capsules
     capsules_left = len(capsules)
@@ -524,7 +530,7 @@ def betterEvaluationFunction(currentGameState):
     else:
         shortest_capsule = 0
 
-    weights = [5, 10, -5, -50, -50, 10]
+    weights = [5, 10, -5, -50, -100, 10]
     scores = [shortest_food, shortest_capsule, shortest_ghost,
               food_left, capsules_left, shortest_scared]
 
