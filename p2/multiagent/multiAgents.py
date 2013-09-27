@@ -443,6 +443,17 @@ def manhattanHeuristic(position, problem, info={}):
     xy2 = problem.goal
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
+def nearest_food_heuristic(pos, problem, info={}):
+    food = problem.food
+    food_distances = [
+        manhattanDistance(pos, (x, y))
+        for x, row in enumerate(food)
+        for y, food_bool in enumerate(row)
+        if food_bool
+        ]
+
+    return min(food_distances) if food_distances else 0
+
 def betterEvaluationFunction(currentGameState):
     """
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -459,7 +470,7 @@ def betterEvaluationFunction(currentGameState):
 
     # Nom them foods
     problem = AnyFoodSearchProblem(currentGameState)
-    shortest_food = aStarSearch(problem)
+    shortest_food = aStarSearch(problem, heuristic = nearest_food_heuristic)
     if shortest_food:
         shortest_food = 1 / len(shortest_food)
     else:
@@ -511,7 +522,7 @@ def betterEvaluationFunction(currentGameState):
     else:
         shortest_capsule = 0
 
-    weights = [2, 0, 10, -50, 0, 0]
+    weights = [2, 1, 10, -50, -50, 1]
     scores = [shortest_food, shortest_capsule, shortest_ghost,
               food_left, capsules_left, shortest_scared]
 
