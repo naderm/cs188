@@ -459,18 +459,29 @@ def betterEvaluationFunction(currentGameState):
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
       evaluation function (question 5).
 
-      DESCRIPTION: This function evaluates a state based on the sum of six weighted variables:
-      distance to food pellets, ghosts, power pellets, number of power pellets and food pellets left. 
-      More details about the use of each of these values is below.
+      DESCRIPTION: This function evaluates a state based on the sum of
+      six weighted variables:
 
-      Distance to closest ghost is weighted most heavily, followed by distance to closest power pellet with 1/10 of the weight,
-      and distance to food as the last positive weight. Number of power pellets left was strongly negatively weighted, followed by 
-      the number of food pellets left with 1/4 of that negative weight.  
+      - Distance of path to nearest food pellet
+      - Manhattan distance to closest offensive ghost
+      - Manhattan distance to closest power pellet
+      - Number of power pellets left
+      - Number of food pellets left
+      - Manhattan distance to closest scared ghost
 
-      The reciprocal of the distance to closest food pellet, a close food pellet is a good thing.
-      The negative reciprocal of the distance to the closest ghost, since a close ghost makes the state less desirable.
-      The reciprocal of the distance to the closest power pellet, since a close pellet is also favorable.
-      The number of power pellets left in the game.
+      For some of the variables, the reciprocal was taken based on the
+      following methodology:
+      - The reciprocal of the distance to closest food pellet
+        - A close food pellet is a good thing, but we want grabbing
+          one to have a limited value on the change in score
+        - The score drop due to the increased distance to the next
+          nearest pellet should be less than the score gain from
+          eating the pellet.
+      - The negative reciprocal of the distance to the closest ghost
+        - A close ghost makes the state less desirable, but variances
+          in ghosts far away should have little impact
+      - The reciprocal of the distance to the closest power pellet
+        - Same reasoning as food pellets
 
     """
     pos = currentGameState.getPacmanPosition()
