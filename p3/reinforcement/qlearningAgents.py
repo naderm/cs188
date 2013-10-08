@@ -69,12 +69,22 @@ class QLearningAgent(ReinforcementAgent):
           are no legal actions, which is the case at the terminal state,
           you should return None.
         """
-        # random.choice(seq)
         actions = self.getLegalActions(state)
+
         if not actions:
             return None
-        # use random.choice
-        return max(actions, key = lambda x: self.getQValue(state, x))
+
+        best_score, best_actions = None, []
+
+        for action in actions:
+            score = self.getQValue(state, action)
+            if best_score is None or score > best_score:
+                best_actions = [action]
+                best_score = score
+            elif score == best_score:
+                best_actions.append(action)
+
+        return random.choice(best_actions)
 
     def getAction(self, state):
         """
