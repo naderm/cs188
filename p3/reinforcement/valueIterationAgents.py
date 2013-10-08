@@ -45,23 +45,15 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.values = util.Counter() # A Counter is a dict with default 0
 
         startState = mdp.getStartState()
-        iteration = 1
-        maxVal = null
-        while iteration <= iterations:
-
+        maxVal = None
+        for iteration in xrange(iterations):
             for state in mdp.getStates():
-                actions = mdp.getPossibleActions(state)
-                if actions == null:
-                    "do something here if there are no actions"
-                else:
-                    for a in actions:
-                        qval = computeQValueFromValues(state, a)
-                        if maxVal == null:
-                            maxVal = qval
-                        elif qval > maxVal:
-                            maxVal = qval #"there has got to be a more elegant python way to write this"
-
-            i += 1
+                for action in mdp.getPossibleActions(state):
+                    qval = self.computeQValueFromValues(state, action)
+                    if maxVal == None:
+                        maxVal = qval
+                    elif qval > maxVal:
+                        maxVal = qval
 
     def getValue(self, state):
         """
@@ -75,12 +67,10 @@ class ValueIterationAgent(ValueEstimationAgent):
           Compute the Q-value of action in state from the
           value function stored in self.values.
         """
-        qvalue = 0
-        nextStates = mdp.getTransitionStatesAndProbs(state, action)
-        for newState, prob in nextStates:
-          qvalue += prob * (mdp.getReward(state, action, newState) + discount*getValue(newState))
-        return qvalue
-
+        return sum(
+            prob * (mdp.getReward(state, action, newState) +
+                    self.discount * self.getValue(newState))
+            for newState, prob in mdp.getTransitionStatesAndProbs(state, action))
 
     def computeActionFromValues(self, state):
         """
@@ -91,6 +81,8 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
+        help(state[1])
+        return max(actions, key = lambda x: self.computeQValueFromValues(state, x))
         "*** YOUR CODE HERE ***"
         "is it not just: return self.values.argMax() ?"
         util.raiseNotDefined()
