@@ -18,6 +18,7 @@ from learningAgents import ReinforcementAgent
 from featureExtractors import *
 
 import random,util,math
+from collections import defaultdict
 
 class QLearningAgent(ReinforcementAgent):
     """
@@ -43,6 +44,7 @@ class QLearningAgent(ReinforcementAgent):
         "You can initialize Q-values here..."
         ReinforcementAgent.__init__(self, **args)
 
+        self.q_values = defaultdict(util.Counter)
         "*** YOUR CODE HERE ***"
 
     def getQValue(self, state, action):
@@ -71,8 +73,10 @@ class QLearningAgent(ReinforcementAgent):
           are no legal actions, which is the case at the terminal state,
           you should return None.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # random.choice(seq)
+        actions = self.getLegalActions(state)
+        for action in actions:
+            pass
 
     def getAction(self, state):
         """
@@ -102,8 +106,9 @@ class QLearningAgent(ReinforcementAgent):
           NOTE: You should never call this function,
           it will be called on your behalf
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        self.q_values[state][action] = \
+          (1 - self.alpha) * self.q_values[state][action] + \
+          self.alpha * (reward + self.discount * self.q_values[nextState].argMax())
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
