@@ -78,6 +78,7 @@ class QLearningAgent(ReinforcementAgent):
 
         for action in actions:
             score = self.getQValue(state, action)
+
             if best_score is None or score > best_score:
                 best_actions = [action]
                 best_score = score
@@ -97,7 +98,6 @@ class QLearningAgent(ReinforcementAgent):
           HINT: You might want to use util.flipCoin(prob)
           HINT: To pick randomly from a list, use random.choice(list)
         """
-        # Pick Action
         actions = self.getLegalActions(state)
 
         if not actions:
@@ -119,7 +119,7 @@ class QLearningAgent(ReinforcementAgent):
         """
         self.q_values[state][action] = \
           (1 - self.alpha) * self.q_values[state][action] + \
-          self.alpha * (reward + self.discount * self.computeValueFromQValues(nextState))
+          self.alpha * (reward + self.discount * self.getValue(nextState))
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
