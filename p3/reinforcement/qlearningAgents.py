@@ -66,6 +66,11 @@ class QLearningAgent(ReinforcementAgent):
         if not actions:
             return 0
 
+        # Don't use argMax() here, it only returns the max of the
+        # actions tested. If we have test actions < 0, but still
+        # untested actions, then it will return the wrong answer.
+        #
+        # See: https://piazza.com/class/hj1q1a85buf1qk?cid=405
         return max(self.getQValue(state, action) for action in actions)
 
     def computeActionFromQValues(self, state):
