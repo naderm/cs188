@@ -47,13 +47,16 @@ class ValueIterationAgent(ValueEstimationAgent):
         startState = mdp.getStartState()
         maxVal = None
         for iteration in xrange(iterations):
+            values = self.values.copy()
             for state in mdp.getStates():
-                for action in mdp.getPossibleActions(state):
-                    qval = self.computeQValueFromValues(state, action)
-                    if maxVal == None:
-                        maxVal = qval
-                    elif qval > maxVal:
-                        maxVal = qval
+                actions = self.mdp.getPossibleActions(state)
+                if not actions:
+                    values[state] = 0
+                else:
+                    values[state] = \
+                      max(self.computeQValueFromValues(state, action)
+                          for action in actions)
+            self.values = values
 
     def getValue(self, state):
         """
