@@ -15,6 +15,7 @@
 
 import itertools
 import util
+import operator
 import random
 import busters
 import game
@@ -362,6 +363,7 @@ class JointParticleFilter:
     def __init__(self, numParticles=600):
         self.setNumParticles(numParticles)
         self.particles = None
+        self.beliefs = None
 
     def setNumParticles(self, numParticles):
         self.numParticles = numParticles
@@ -396,6 +398,7 @@ class JointParticleFilter:
 
         """
         source = list(itertools.product(self.legalPositions, repeat = self.numGhosts))
+        random.shuffle(source)
         self.particles = [source[i % len(source)] for i in xrange(self.numParticles)]
 
     def addGhostAgent(self, agent):
@@ -440,26 +443,52 @@ class JointParticleFilter:
         pacmanPosition = gameState.getPacmanPosition()
         noisyDistances = gameState.getNoisyGhostDistances()
         if len(noisyDistances) < self.numGhosts: return
-        emissionModels = [busters.getObservationDistribution(dist) for dist in noisyDistances]
+        emissionModels = [busters.getObservationDistribution(dist)
+                          for dist in noisyDistances]
+
+        for i, j in zip(noisyDistances, emissionModels):
+            if i is None:
+                j[0] = 1
+
+        print pacmanPosition
+        print noisyDistances
+        print set(p[0] for p in self.particles)
+        print set(p[1] for p in self.particles)
+        print [emissionModels[0][i] for i in [0, 1, 2, 3]]
+        print [emissionModels[1][i] for i in [0, 1, 2, 3]]
+        print
+
+        beliefs = util.Counter()
+        for p in self.particles:
+            distances = [util.manhattanDistance(pacmanPosition, ghost)
+                         for ghost in p]
+            probs = [model[distance]
+                     for model, distance in zip(emissionModels, distances)]
+            beliefs[p] += reduce(operator.mul, probs, 1)
+        print "blies", beliefs
+        print
 
         for index, distance in enumerate(noisyDistances):
             if distance is None:
                 self.particles = [self.getParticleWithGhostInJail(p, index)
                                   for p in self.particles]
 
+        # print "noisy", noisyDistances
+        # print beliefs
+        # print "before", self.getBeliefDistribution()
+        if all(i == 0 for i in beliefs.values()):
+            # print self.beliefs
+            self.particles = [util.sample(self.beliefs) for i in self.particles]
+            # self.initializeParticles()
+            for index, distance in enumerate(noisyDistances):
+                if distance is None:
+                    self.particles = [self.getParticleWithGhostInJail(p, index)
+                                      for p in self.particles]
         else:
-            beliefs = util.Counter()
-            for p in self.particles:
-                distances = [util.manhattanDistance(pacmanPosition, ghost)
-                             for ghost in p]
-                prob = 1
-                for model, distance in zip(emissionModels, distances):
-                    prob *= model[distance]
-                beliefs[p] += prob
-            if all(i == 0 for i in beliefs.values()):
-                self.initializeParticles()
-            else:
-                self.particles = [util.sample(beliefs) for i in self.particles]
+            self.particles = [util.sample(beliefs) for i in self.particles]
+        # print "after", self.getBeliefDistribution()
+
+        self.beliefs = beliefs
 
     def getParticleWithGhostInJail(self, particle, ghostIndex):
         particle = list(particle)
