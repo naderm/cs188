@@ -252,7 +252,9 @@ class ParticleFilter(InferenceModule):
             dictionary (where there could be an associated weight with each position) is incorrect
             and will produce errors
         """
-        self.particles = [random.choice(self.legalPositions) for i in xrange(self.numParticles)]
+        self.particles = []
+        for pos in self.legalPositions:
+            self.particles += [pos] * (self.numParticles / len(self.legalPositions))
 
     def observe(self, observation, gameState):
         """
@@ -287,7 +289,7 @@ class ParticleFilter(InferenceModule):
         emissionModel = busters.getObservationDistribution(noisyDistance)
         pacmanPosition = gameState.getPacmanPosition()
         if noisyDistance is None:
-            self.particles = [self.getJailPosition() for i in self.particles]
+            self.particles = [self.getJailPosition()] * len(self.particles)
         else:
             beliefs = util.Counter()
             for p in self.particles:
