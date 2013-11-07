@@ -288,7 +288,7 @@ class ParticleFilter(InferenceModule):
         emissionModel = busters.getObservationDistribution(noisyDistance)
         pacmanPosition = gameState.getPacmanPosition()
         if noisyDistance is None:
-            self.particles = [self.getJailPosition()] * len(self.particles)
+            self.particles = [self.getJailPosition()] * self.numParticles
         else:
             beliefs = util.Counter()
             for p in self.particles:
@@ -442,7 +442,24 @@ class JointParticleFilter:
         if len(noisyDistances) < self.numGhosts: return
         emissionModels = [busters.getObservationDistribution(dist) for dist in noisyDistances]
 
-        "*** YOUR CODE HERE ***"
+        for index, distance in enumerate(noisyDistances):
+            if distance is None:
+                self.particles = [self.getParticleWithGhostInJail(p, index)
+                                  for p in self.particles]
+
+        else:
+            beliefs = util.Counter()
+            for p in self.particles:
+                distances = [util.manhattanDistance(pacmanPosition, ghost)
+                             for ghost in p]
+                prob = 1
+                for model, distance in zip(emissionModels, distances):
+                    prob *= model[distance]
+                beliefs[p] += prob
+            if all(i == 0 for i in beliefs.values()):
+                self.initializeParticles()
+            else:
+                self.particles = [util.sample(beliefs) for i in self.particles]
 
     def getParticleWithGhostInJail(self, particle, ghostIndex):
         particle = list(particle)
