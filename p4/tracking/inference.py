@@ -233,6 +233,7 @@ class ParticleFilter(InferenceModule):
     def __init__(self, ghostAgent, numParticles=300):
         InferenceModule.__init__(self, ghostAgent);
         self.setNumParticles(numParticles)
+        self.particles = None
 
     def setNumParticles(self, numParticles):
         self.numParticles = numParticles
@@ -251,7 +252,7 @@ class ParticleFilter(InferenceModule):
             dictionary (where there could be an associated weight with each position) is incorrect
             and will produce errors
         """
-        "*** YOUR CODE HERE ***"
+        self.particles = [random.choice(self.legalPositions) for i in xrange(self.numParticles)]
 
     def observe(self, observation, gameState):
         """
@@ -285,8 +286,17 @@ class ParticleFilter(InferenceModule):
         noisyDistance = observation
         emissionModel = busters.getObservationDistribution(noisyDistance)
         pacmanPosition = gameState.getPacmanPosition()
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if noisyDistance is None:
+            self.particles = [self.getJailPosition() for i in self.particles]
+        else:
+            beliefs = util.Counter()
+            for p in self.particles:
+                distance = util.manhattanDistance(pacmanPosition, p)
+                beliefs[p] += emissionModel[distance]
+            if all(i == 0 for i in beliefs.values()):
+                self.initializeUniformly(gameState)
+            else:
+                self.particles = [util.sample(beliefs) for i in self.particles]
 
     def elapseTime(self, gameState):
         """
@@ -312,8 +322,12 @@ class ParticleFilter(InferenceModule):
           ghost locations conditioned on all evidence and time passage. This method
           essentially converts a list of particles into a belief distribution (a Counter object)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        beliefs = util.Counter()
+        for p in self.particles:
+            beliefs[p] += 1
+        beliefs.normalize()
+        return beliefs
+
 
 class MarginalInference(InferenceModule):
     "A wrapper around the JointInference module that returns marginal beliefs about ghosts."
