@@ -1,15 +1,15 @@
 # bustersAgents.py
 # ----------------
-# Licensing Information:  You are free to use or extend these projects for 
-# educational purposes provided that (1) you do not distribute or publish 
-# solutions, (2) you retain this notice, and (3) you provide clear 
-# attribution to UC Berkeley, including a link to 
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to
 # http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero 
+# The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and 
+# Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
@@ -153,8 +153,13 @@ class GreedyBustersAgent(BustersAgent):
         pacmanPosition = gameState.getPacmanPosition()
         legal = [a for a in gameState.getLegalPacmanActions()]
         livingGhosts = gameState.getLivingGhosts()
-        livingGhostPositionDistributions = [beliefs for i,beliefs
+        livingGhostPositionDistributions = [beliefs for i, beliefs
                                             in enumerate(self.ghostBeliefs)
                                             if livingGhosts[i+1]]
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        bestGhosts = [max(beliefs, key = lambda x: beliefs[x])
+                      for beliefs in livingGhostPositionDistributions]
+        action = min(
+            legal,
+            key = lambda x: min(self.distancer.getDistance(
+                Actions.getSuccessor(pacmanPosition, x), ghost) for ghost in bestGhosts))
+        return action
