@@ -252,9 +252,8 @@ class ParticleFilter(InferenceModule):
             dictionary (where there could be an associated weight with each position) is incorrect
             and will produce errors
         """
-        self.particles = []
-        for pos in self.legalPositions:
-            self.particles += [pos] * (self.numParticles / len(self.legalPositions))
+        self.particles = [self.legalPositions[i % len(self.legalPositions)]
+                          for i in xrange(self.numParticles)]
 
     def observe(self, observation, gameState):
         """
@@ -362,6 +361,7 @@ class JointParticleFilter:
 
     def __init__(self, numParticles=600):
         self.setNumParticles(numParticles)
+        self.particles = None
 
     def setNumParticles(self, numParticles):
         self.numParticles = numParticles
@@ -395,7 +395,8 @@ class JointParticleFilter:
             and will produce errors
 
         """
-        "*** YOUR CODE HERE ***"
+        source = list(itertools.product(self.legalPositions, repeat = self.numGhosts))
+        self.particles = [source[i % len(source)] for i in xrange(self.numParticles)]
 
     def addGhostAgent(self, agent):
         "Each ghost agent is registered separately and stored (in case they are different)."
@@ -501,8 +502,11 @@ class JointParticleFilter:
         self.particles = newParticles
 
     def getBeliefDistribution(self):
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        beliefs = util.Counter()
+        for p in self.particles:
+            beliefs[p] += 1
+        beliefs.normalize()
+        return beliefs
 
 # One JointInference module is shared globally across instances of MarginalInference
 jointInference = JointParticleFilter()
