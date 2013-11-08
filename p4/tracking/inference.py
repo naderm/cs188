@@ -446,47 +446,35 @@ class JointParticleFilter:
         emissionModels = [busters.getObservationDistribution(dist)
                           for dist in noisyDistances]
 
-        for i, j in zip(noisyDistances, emissionModels):
-            if i is None:
-                j[0] = 1
-
-        print pacmanPosition
-        print noisyDistances
-        print set(p[0] for p in self.particles)
-        print set(p[1] for p in self.particles)
-        print [emissionModels[0][i] for i in [0, 1, 2, 3]]
-        print [emissionModels[1][i] for i in [0, 1, 2, 3]]
-        print
-
-        beliefs = util.Counter()
-        for p in self.particles:
-            distances = [util.manhattanDistance(pacmanPosition, ghost)
-                         for ghost in p]
-            probs = [model[distance]
-                     for model, distance in zip(emissionModels, distances)]
-            beliefs[p] += reduce(operator.mul, probs, 1)
-        print "blies", beliefs
-        print
-
+        # Move all ghosts we are touching to the jail
         for index, distance in enumerate(noisyDistances):
             if distance is None:
                 self.particles = [self.getParticleWithGhostInJail(p, index)
                                   for p in self.particles]
 
-        # print "noisy", noisyDistances
-        # print beliefs
-        # print "before", self.getBeliefDistribution()
+        # Iterate over all the particles to find their weights
+        beliefs = util.Counter()
+        for p in self.particles:
+            prob = 1
+            # Make sure the weights don't break when we touch a ghost!
+            for index, ghost, model, distance in \
+              zip(xrange(len(p)), p, emissionModels, noisyDistances):
+                if distance is None:
+                    if ghost != self.getJailPosition(index):
+                        prob = 0
+                else:
+                    prob *= model[util.manhattanDistance(pacmanPosition, ghost)]
+            beliefs[p] += prob
+
+        # If all particles have weight of zero, re-initialize, otherwise, re-sample
         if all(i == 0 for i in beliefs.values()):
-            # print self.beliefs
-            self.particles = [util.sample(self.beliefs) for i in self.particles]
-            # self.initializeParticles()
+            self.initializeParticles()
             for index, distance in enumerate(noisyDistances):
                 if distance is None:
                     self.particles = [self.getParticleWithGhostInJail(p, index)
                                       for p in self.particles]
         else:
             self.particles = [util.sample(beliefs) for i in self.particles]
-        # print "after", self.getBeliefDistribution()
 
         self.beliefs = beliefs
 
@@ -540,10 +528,14 @@ class JointParticleFilter:
             newParticle = list(oldParticle) # A list of ghost positions
 
             # now loop through and update each entry in newParticle...
+            for index in xrange(len(newParticle)):
+                newParticle[index] = util.sample(
+                    getPositionDistributionForGhost(
+                        setGhostPositions(gameState, oldParticle),
+                        index,
+                        self.ghostAgents[index])
+                    )
 
-            "*** YOUR CODE HERE ***"
-
-            "*** END YOUR CODE HERE ***"
             newParticles.append(tuple(newParticle))
         self.particles = newParticles
 
