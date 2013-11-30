@@ -1,15 +1,15 @@
 # naiveBayes.py
 # -------------
-# Licensing Information:  You are free to use or extend these projects for 
-# educational purposes provided that (1) you do not distribute or publish 
-# solutions, (2) you retain this notice, and (3) you provide clear 
-# attribution to UC Berkeley, including a link to 
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to
 # http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero 
+# The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and 
+# Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
@@ -29,6 +29,8 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         self.type = "naivebayes"
         self.k = 1 # this is the smoothing parameter, ** use it in your train method **
         self.automaticTuning = False # Look at this flag to decide whether to choose k automatically ** use this in your train method **
+        self.p_label = None
+        self.p_label_given_f = None
 
     def setSmoothing(self, k):
         """
@@ -67,8 +69,55 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         self.legalLabels.
         """
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        probs = {}
+        def train_k(k):
+            # P(label)
+            self.p_label = util.Counter()
+            # P(label | feature)
+            self.p_label_given_f = util.Counter()
+
+            # Build the table of probabilities
+            for features, label in zip(trainingData, trainingLabels):
+                self.p_label[label] += 1
+                for feature, value in features.items():
+                    self.p_label_given_f[(feature, value, label)] += 1
+
+            # Apply Laplace smoothing
+            for label in self.legalLabels:
+                self.p_label[label] += k
+                for feature in self.features:
+                    for value in [0, 1]:
+                        self.p_label_given_f[(feature, value, label)] += k
+
+            # Normalize + Calculate log probabilities
+            self.p_label.normalize()
+            for key, value in self.p_label.items():
+                self.p_label[key] = math.log(value)
+
+            # self.p_label_given_f.normalize()
+            for label in self.legalLabels:
+                for feature in self.features:
+                    total = float(sum(self.p_label_given_f[(feature, value, label)]
+                                      for value in [0, 1]))
+                    for value in [0, 1]:
+                        self.p_label_given_f[(feature, value, label)] /= total
+            for key, value in self.p_label_given_f.items():
+                self.p_label_given_f[key] = math.log(value)
+
+            # Validate
+            probs[k] = (self.p_label, self.p_label_given_f)
+            return sum(int(y == y_p)
+                       for y, y_p in zip(validationLabels, self.classify(validationData)))
+
+        k_scores = [train_k(k) for k in kgrid]
+        max_k, max_k_score = kgrid[0], -1
+        for k, k_score in zip(kgrid, k_scores):
+            if k_score > max_k_score or \
+              (k_score == max_k_score and k < max_k):
+              max_k, max_k_score = k, k_score
+
+        self.p_label, self.p_label_given_f = probs[max_k]
+        self.k = max_k
 
     def classify(self, testData):
         """
@@ -95,8 +144,10 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         """
         logJoint = util.Counter()
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for label in self.legalLabels:
+            logJoint[label] = self.p_label[label] + \
+              sum(self.p_label_given_f[(feature, value, label)]
+                  for feature, value in datum.items())
 
         return logJoint
 
