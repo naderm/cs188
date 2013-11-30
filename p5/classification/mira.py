@@ -127,8 +127,7 @@ class MiraClassifier:
                          w_label1 - w_label2
 
         """
-        featuresOdds = []
-
-        "*** YOUR CODE HERE ***"
-
-        return featuresOdds
+        diff = self.weights[label1] - self.weights[label2]
+        for key, value in diff.items():
+            diff[key] = abs(value)
+        return diff.sortedKeys()[:100]
