@@ -1,0 +1,12 @@
+class: "GradeClassifierTest"
+classifierModule: "naiveBayes"
+classifierClass: "NaiveBayesClassifier"
+
+automaticTuning: "True"
+
+datasetName: "bigDigitData"
+
+# our solution: 78%
+exactOutput: "True"
+accuracyScale: "6"
+accuracyThresholds: "75"
