@@ -80,7 +80,7 @@ class MiraClassifier:
                         tau = min([
                             c,
                             ((self.weights[y_p] - self.weights[y]) * features + 1.)
-                            / (2 * (features * features) ** 2)
+                            / (2 * (features * features))
                             ])
                         delta = features.copy()
                         for key, value in delta.items():
