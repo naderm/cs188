@@ -1,15 +1,15 @@
 # mira.py
 # -------
-# Licensing Information:  You are free to use or extend these projects for 
-# educational purposes provided that (1) you do not distribute or publish 
-# solutions, (2) you retain this notice, and (3) you provide clear 
-# attribution to UC Berkeley, including a link to 
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to
 # http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero 
+# The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and 
+# Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
@@ -32,6 +32,7 @@ class MiraClassifier:
         self.legalLabels = legalLabels
         self.max_iterations = max_iterations
         self.initializeWeightsToZero()
+        self.weights = {}
 
     def initializeWeightsToZero(self):
         "Resets the weights of each label to zero vectors"
@@ -61,8 +62,48 @@ class MiraClassifier:
         datum is a counter from features to values for those features
         representing a vector of values.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def f_2_2(features):
+            return sum([i ** 2 for i in features.values()])
+
+        weights = {}
+        def train_c(c):
+            print "Testing parameter C:", c
+
+            # Reset the weights
+            self.weights = dict((label, util.Counter()) for label in self.legalLabels)
+
+            for iteration in range(self.max_iterations):
+                print "Starting MIRA iteration ", iteration, "..."
+                for features, y in zip(trainingData, trainingLabels):
+                    y_p = self.classify([features])[0]
+                    if y != y_p:
+                        tau = min([
+                            c,
+                            ((self.weights[y_p] - self.weights[y]) * features + 1.)
+                            / (2 * (features * features) ** 2)
+                            ])
+                        delta = features.copy()
+                        for key, value in delta.items():
+                            delta[key] = value * tau
+                        self.weights[y] += delta
+                        self.weights[y_p] -= delta
+
+            weights[c] = self.weights
+            return sum(int(y == y_p) for y, y_p in zip(trainingLabels,
+                                                       self.classify(trainingData)))
+
+        c_scores = [train_c(c) for c in Cgrid]
+
+        # Pick out the best value for C, choosing the lower value in the case of ties
+        max_c, max_c_score = Cgrid[0], -1
+        for c, c_score in zip(Cgrid, c_scores):
+            if c_score > max_c_score or \
+              (c_score == max_c_score and c < max_c):
+              max_c, max_c_score = c, c_score
+
+        self.weights = weights[max_c]
+        self.C = max_c
+        return max_c
 
     def classify(self, data ):
         """
