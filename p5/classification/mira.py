@@ -89,8 +89,8 @@ class MiraClassifier:
                         self.weights[y_p] -= delta
 
             weights[c] = self.weights
-            return sum(int(y == y_p) for y, y_p in zip(trainingLabels,
-                                                       self.classify(trainingData)))
+            return sum(int(y == y_p) for y, y_p in zip(validationLabels,
+                                                       self.classify(validationData)))
 
         c_scores = [train_c(c) for c in Cgrid]
 
