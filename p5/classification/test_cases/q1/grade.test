@@ -1,12 +1,14 @@
 class: "GradeClassifierTest"
-classifierModule: "naiveBayes"
-classifierClass: "NaiveBayesClassifier"
+classifierModule: "perceptron"
+classifierClass: "PerceptronClassifier"
 
-automaticTuning: "True"
+max_iterations: "4"
 
 datasetName: "bigDigitData"
 
-# our solution: 78%
-exactOutput: "True"
-accuracyScale: "6"
-accuracyThresholds: "75"
+# our solution: 75%
+exactOutput: "False"
+accuracyScale: "4"
+accuracyThresholds: "70"
+
+
