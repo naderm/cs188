@@ -22,7 +22,7 @@ from pprint import PrettyPrinter
 pp = PrettyPrinter()
 
 # from game import Agent
-# from pacman import GameState
+from pacman import GameState
 # from ghostAgents import RandomGhost, DirectionalGhost
 import random, math, traceback, sys, os
 # import layout, pacman
@@ -64,9 +64,32 @@ def readDigitData(trainingSize=100, testSize=100):
         display("An exception was raised while extracting basic features: \n %s" % getExceptionTraceBack())
     return (trainingData, trainingLabels, validationData, validationLabels, rawTrainingData, rawValidationData, testData, testLabels, rawTestData)
 
+def readSuicideData(trainingSize=100, testSize=100):
+    rootdata = 'pacmandata'
+    rawTrainingData, trainingLabels = samples.loadPacmanData(rootdata + '/suicide_training.pkl', trainingSize)
+    rawValidationData, validationLabels = samples.loadPacmanData(rootdata + '/suicide_validation.pkl', testSize)
+    rawTestData, testLabels = samples.loadPacmanData(rootdata + '/suicide_test.pkl', testSize)
+    trainingData = []
+    validationData = []
+    testData = []
+    return (trainingData, trainingLabels, validationData, validationLabels, rawTrainingData, rawValidationData, testData, testLabels, rawTestData)
+
+def readContestData(trainingSize=100, testSize=100):
+    rootdata = 'pacmandata'
+    rawTrainingData, trainingLabels = samples.loadPacmanData(rootdata + '/contest_training.pkl', trainingSize)
+    rawValidationData, validationLabels = samples.loadPacmanData(rootdata + '/contest_validation.pkl', testSize)
+    rawTestData, testLabels = samples.loadPacmanData(rootdata + '/contest_test.pkl', testSize)
+    trainingData = []
+    validationData = []
+    testData = []
+    return (trainingData, trainingLabels, validationData, validationLabels, rawTrainingData, rawValidationData, testData, testLabels, rawTestData)
+
+
 smallDigitData = readDigitData(20)
 bigDigitData = readDigitData(1000)
 
+suicideData = readSuicideData(1000)
+contestData = readContestData(1000)
 
 def tinyDataSet():
     def count(m,b,h):
@@ -112,14 +135,18 @@ DATASETS = {
     "smallDigitData": lambda: smallDigitData,
     "bigDigitData": lambda: bigDigitData,
     "tinyDataSet": tinyDataSet,
-    "tinyDataSetPeceptronAndMira": tinyDataSetPeceptronAndMira
+    "tinyDataSetPeceptronAndMira": tinyDataSetPeceptronAndMira,
+    "suicideData": lambda: suicideData,
+    "contestData": lambda: contestData
 }
 
 DATASETS_LEGAL_LABELS = {
     "smallDigitData": range(10),
     "bigDigitData": range(10),
     "tinyDataSet": [-1,1],
-    "tinyDataSetPeceptronAndMira": [-1,1]
+    "tinyDataSetPeceptronAndMira": [-1,1],
+    "suicideData": ["EAST", 'WEST', 'NORTH', 'SOUTH', 'STOP'],
+    "contestData": ["EAST", 'WEST', 'NORTH', 'SOUTH', 'STOP']
 }
 
 
@@ -148,12 +175,12 @@ class GradeClassifierTest(testClasses.TestCase):
 
         self.classifierModule = testDict['classifierModule']
         self.classifierClass = testDict['classifierClass']
-        self.datasetName = testDict['datasetName']    
+        self.datasetName = testDict['datasetName']
 
         self.accuracyScale = int(testDict['accuracyScale'])
         self.accuracyThresholds = [int(s) for s in testDict.get('accuracyThresholds','').split()]
         self.exactOutput = testDict['exactOutput'].lower() == "true"
-        
+
         self.automaticTuning = testDict['automaticTuning'].lower() == "true" if 'automaticTuning' in testDict else None
         self.max_iterations = int(testDict['max_iterations']) if 'max_iterations' in testDict else None
         self.featureFunction = testDict['featureFunction'] if 'featureFunction' in testDict else 'basicFeatureExtractorDigit'
@@ -199,7 +226,7 @@ class GradeClassifierTest(testClasses.TestCase):
             for threshold in self.accuracyThresholds:
                 if accuracy >= threshold:
                     totalPoints += self.accuracyScale
-                    
+
             # Print grading schedule
             self.addMessage("%s correct (%s of %s points)" % (accuracy, totalPoints, self.maxPoints))
             self.addMessage("    Grading scheme:")
@@ -212,13 +239,15 @@ class GradeClassifierTest(testClasses.TestCase):
     def writeSolution(self, moduleDict, filePath):
         handle = open(filePath, 'w')
         handle.write('# This is the solution file for %s.\n' % self.path)
-        
+
         if self.exactOutput:
-            _, guesses = self.grade_classifier(moduleDict)        
+            _, guesses = self.grade_classifier(moduleDict)
             handle.write('guesses: "%s"' % (guesses,))
-        
+
         handle.close()
         return True
+
+
 
 
 class MultipleChoiceTest(testClasses.TestCase):

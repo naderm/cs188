@@ -1,15 +1,15 @@
 # dataClassifier.py
 # -----------------
-# Licensing Information:  You are free to use or extend these projects for
-# educational purposes provided that (1) you do not distribute or publish
-# solutions, (2) you retain this notice, and (3) you provide clear
-# attribution to UC Berkeley, including a link to
+# Licensing Information:  You are free to use or extend these projects for 
+# educational purposes provided that (1) you do not distribute or publish 
+# solutions, (2) you retain this notice, and (3) you provide clear 
+# attribution to UC Berkeley, including a link to 
 # http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
-#
+# 
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero
+# The core projects and autograders were primarily created by John DeNero 
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and
+# Student side autograding was added by Brad Miller, Nick Hay, and 
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
@@ -19,16 +19,18 @@
 import mostFrequent
 import naiveBayes
 import perceptron
+import perceptron_pacman
 import mira
 import samples
 import sys
 import util
+from pacman import GameState
 
 TEST_SET_SIZE = 100
-DIGIT_DATUM_WIDTH = 28
-DIGIT_DATUM_HEIGHT = 28
-FACE_DATUM_WIDTH = 60
-FACE_DATUM_HEIGHT = 70
+DIGIT_DATUM_WIDTH=28
+DIGIT_DATUM_HEIGHT=28
+FACE_DATUM_WIDTH=60
+FACE_DATUM_HEIGHT=70
 
 
 def basicFeatureExtractorDigit(datum):
@@ -77,7 +79,53 @@ def enhancedFeatureExtractorDigit(datum):
     features =  basicFeatureExtractorDigit(datum)
 
     "*** YOUR CODE HERE ***"
+    util.raiseNotDefined()
 
+    return features
+
+
+
+def basicFeatureExtractorPacman(state):
+    """
+    A basic feature extraction function.
+
+    You should return a util.Counter() of features
+    for each (state, action) pair along with a list of the legal actions
+
+    ##
+    """
+    features = util.Counter()
+    for action in state.getLegalActions():
+        successor = state.generateSuccessor(0, action)
+        foodCount = successor.getFood().count()
+        featureCounter = util.Counter()
+        featureCounter['foodCount'] = foodCount
+        features[action] = featureCounter
+    return features, state.getLegalActions()
+
+def enhancedFeatureExtractorPacman(state):
+    """
+    Your feature extraction playground.
+
+    You should return a util.Counter() of features
+    for each (state, action) pair along with a list of the legal actions
+
+    ##
+    """
+
+    features = basicFeatureExtractorPacman(state)[0]
+    for action in state.getLegalActions():
+        features[action] = util.Counter(features[action], **enhancedPacmanFeatures(state, action))
+    return features, state.getLegalActions()
+
+def enhancedPacmanFeatures(state, action):
+    """
+    For each state, this function is called with each legal action.
+    It should return a counter with { <feature name> : <feature value>, ... }
+    """
+    features = util.Counter()
+    "*** YOUR CODE HERE ***"
+    util.raiseNotDefined()
     return features
 
 
@@ -167,13 +215,28 @@ class ImagePrinter:
 def default(str):
     return str + ' [Default: %default]'
 
+USAGE_STRING = """
+  USAGE:      python dataClassifier.py <options>
+  EXAMPLES:   (1) python dataClassifier.py
+                  - trains the default mostFrequent classifier on the digit dataset
+                  using the default 100 training examples and
+                  then test the classifier on test data
+              (2) python dataClassifier.py -c naiveBayes -d digits -t 1000 -f -o -1 3 -2 6 -k 2.5
+                  - would run the naive Bayes classifier on 1000 training examples
+                  using the enhancedFeatureExtractorDigits function to get the features
+                  on the faces dataset, would use the smoothing parameter equals to 2.5, would
+                  test the classifier on the test data and performs an odd ratio analysis
+                  with label1=3 vs. label2=6
+                 """
+
+
 def readCommand( argv ):
     "Processes the command used to run from the command line."
     from optparse import OptionParser
     parser = OptionParser(USAGE_STRING)
 
     parser.add_option('-c', '--classifier', help=default('The type of classifier'), choices=['mostFrequent', 'nb', 'naiveBayes', 'perceptron', 'mira', 'minicontest'], default='mostFrequent')
-    parser.add_option('-d', '--data', help=default('Dataset to use'), choices=['digits', 'faces'], default='digits')
+    parser.add_option('-d', '--data', help=default('Dataset to use'), choices=['digits', 'faces', 'pacman'], default='digits')
     parser.add_option('-t', '--training', help=default('The size of the training set'), default=100, type="int")
     parser.add_option('-f', '--features', help=default('Whether to use enhanced features'), default=False, action="store_true")
     parser.add_option('-o', '--odds', help=default('Whether to compute odds ratios'), default=False, action="store_true")
@@ -184,6 +247,7 @@ def readCommand( argv ):
     parser.add_option('-a', '--autotune', help=default("Whether to automatically tune hyperparameters"), default=False, action="store_true")
     parser.add_option('-i', '--iterations', help=default("Maximum iterations to run training"), default=3, type="int")
     parser.add_option('-s', '--test', help=default("Amount of test data to use"), default=TEST_SET_SIZE, type="int")
+    parser.add_option('-g', '--agentToClone', help=default("Pacman agent to copy"), default=None, type="str")
 
     options, otherjunk = parser.parse_args(argv)
     if len(otherjunk) != 0: raise Exception('Command line input not understood: ' + str(otherjunk))
@@ -213,6 +277,12 @@ def readCommand( argv ):
             featureFunction = enhancedFeatureExtractorFace
         else:
             featureFunction = basicFeatureExtractorFace
+    elif(options.data=="pacman"):
+        printImage = None
+        if (options.features):
+            featureFunction = enhancedFeatureExtractorPacman
+        else:
+            featureFunction = basicFeatureExtractorPacman
     else:
         print "Unknown dataset", options.data
         print USAGE_STRING
@@ -221,7 +291,7 @@ def readCommand( argv ):
     if(options.data=="digits"):
         legalLabels = range(10)
     else:
-        legalLabels = range(2)
+        legalLabels = ['Stop', 'West', 'East', 'North', 'South']
 
     if options.training <= 0:
         print "Training set size should be a positive integer (you provided: %d)" % options.training
@@ -250,9 +320,13 @@ def readCommand( argv ):
         else:
             print "using smoothing parameter k=%f for naivebayes" %  options.smoothing
     elif(options.classifier == "perceptron"):
-        classifier = perceptron.PerceptronClassifier(legalLabels,options.iterations)
+        if options.data != 'pacman':
+            classifier = perceptron.PerceptronClassifier(legalLabels,options.iterations)
+        else:
+            classifier = perceptron_pacman.PerceptronClassifierPacman(legalLabels,options.iterations)
     elif(options.classifier == "mira"):
-        classifier = mira.MiraClassifier(legalLabels, options.iterations)
+        if options.data != 'pacman':
+            classifier = mira.MiraClassifier(legalLabels, options.iterations)
         if (options.autotune):
             print "using automatic tuning for MIRA"
             classifier.automaticTuning = True
@@ -267,45 +341,44 @@ def readCommand( argv ):
 
         sys.exit(2)
 
+    args['agentToClone'] = options.agentToClone
+
     args['classifier'] = classifier
     args['featureFunction'] = featureFunction
     args['printImage'] = printImage
 
     return args, options
 
-USAGE_STRING = """
-  USAGE:      python dataClassifier.py <options>
-  EXAMPLES:   (1) python dataClassifier.py
-                  - trains the default mostFrequent classifier on the digit dataset
-                  using the default 100 training examples and
-                  then test the classifier on test data
-              (2) python dataClassifier.py -c naiveBayes -d digits -t 1000 -f -o -1 3 -2 6 -k 2.5
-                  - would run the naive Bayes classifier on 1000 training examples
-                  using the enhancedFeatureExtractorDigits function to get the features
-                  on the faces dataset, would use the smoothing parameter equals to 2.5, would
-                  test the classifier on the test data and performs an odd ratio analysis
-                  with label1=3 vs. label2=6
-                 """
-
+# Dictionary containing full path to .pkl file that contains the agent's training, validation, and testing data.
+MAP_AGENT_TO_PATH_OF_SAVED_GAMES = {
+    'FoodAgent': ('pacmandata/food_training.pkl','pacmandata/food_validation.pkl','pacmandata/food_test.pkl' ),
+    'StopAgent': ('pacmandata/stop_training.pkl','pacmandata/stop_validation.pkl','pacmandata/stop_test.pkl' ),
+    'SuicideAgent': ('pacmandata/suicide_training.pkl','pacmandata/suicide_validation.pkl','pacmandata/suicide_test.pkl' ),
+    'GoodReflexAgent': ('pacmandata/good_reflex_training.pkl','pacmandata/good_reflex_validation.pkl','pacmandata/good_reflex_test.pkl' ),
+    'ContestAgent': ('pacmandata/contest_training.pkl','pacmandata/contest_validation.pkl', 'pacmandata/contest_test.pkl' )
+}
 # Main harness code
 
-def runClassifier(args, options):
 
+
+def runClassifier(args, options):
     featureFunction = args['featureFunction']
     classifier = args['classifier']
     printImage = args['printImage']
-
+    
     # Load data
     numTraining = options.training
     numTest = options.test
 
-    if(options.data=="faces"):
-        rawTrainingData = samples.loadDataFile("facedata/facedatatrain", numTraining,FACE_DATUM_WIDTH,FACE_DATUM_HEIGHT)
-        trainingLabels = samples.loadLabelsFile("facedata/facedatatrainlabels", numTraining)
-        rawValidationData = samples.loadDataFile("facedata/facedatatrain", numTest,FACE_DATUM_WIDTH,FACE_DATUM_HEIGHT)
-        validationLabels = samples.loadLabelsFile("facedata/facedatatrainlabels", numTest)
-        rawTestData = samples.loadDataFile("facedata/facedatatest", numTest,FACE_DATUM_WIDTH,FACE_DATUM_HEIGHT)
-        testLabels = samples.loadLabelsFile("facedata/facedatatestlabels", numTest)
+    if(options.data=="pacman"):
+        agentToClone = args.get('agentToClone', None)
+        trainingData, validationData, testData = MAP_AGENT_TO_PATH_OF_SAVED_GAMES.get(agentToClone, (None, None, None))
+        trainingData = trainingData or args.get('trainingData', False) or MAP_AGENT_TO_PATH_OF_SAVED_GAMES['ContestAgent'][0]
+        validationData = validationData or args.get('validationData', False) or MAP_AGENT_TO_PATH_OF_SAVED_GAMES['ContestAgent'][1]
+        testData = testData or MAP_AGENT_TO_PATH_OF_SAVED_GAMES['ContestAgent'][2]
+        rawTrainingData, trainingLabels = samples.loadPacmanData(trainingData, numTraining)
+        rawValidationData, validationLabels = samples.loadPacmanData(validationData, numTest)
+        rawTestData, testLabels = samples.loadPacmanData(testData, numTest)
     else:
         rawTrainingData = samples.loadDataFile("digitdata/trainingimages", numTraining,DIGIT_DATUM_WIDTH,DIGIT_DATUM_HEIGHT)
         trainingLabels = samples.loadLabelsFile("digitdata/traininglabels", numTraining)

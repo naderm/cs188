@@ -22,6 +22,7 @@ import re
 import sys
 import projectParams
 import random
+from pacman import GameState
 random.seed(0)
 
 # register arguments and set default values
@@ -105,14 +106,14 @@ def setModuleName(module, filename):
     for i in dir(module):
         o = getattr(module, i)
         if hasattr(o, '__file__'): continue
-        
+
         if type(o) == functionType:
             setattr(o, '__file__', filename)
         elif type(o) == classType:
             setattr(o, '__file__', filename)
             # TODO: assign member __file__'s?
-        #print i, type(o)            
-    
+        #print i, type(o)
+
 
 #from cStringIO import StringIO
 
@@ -133,7 +134,7 @@ def loadModuleFile(moduleName, filePath):
     with open(filePath, 'r') as f:
         return imp.load_module(moduleName, f, "%s.py" % moduleName, (".py", "r", imp.PY_SOURCE))
 
- 
+
 def readFile(path, root=""):
     "Read file from disk at specified path and return as string"
     with open(os.path.join(root, path), 'r') as handle:
@@ -180,24 +181,24 @@ def splitStrings(d):
         if d2[k].find("\n") >= 0:
             d2[k] = d2[k].split("\n")
     return d2
-            
+
 
 def printTest(testDict, solutionDict):
     pp = pprint.PrettyPrinter(indent=4)
     print "Test case:"
     for line in testDict["__raw_lines__"]:
-        print "   |", line 
+        print "   |", line
     print "Solution:"
     for line in solutionDict["__raw_lines__"]:
-        print "   |", line 
-    
+        print "   |", line
+
 
 def runTest(testName, moduleDict, printTestCase=False, display=None):
     import testParser
     import testClasses
     for module in moduleDict:
         setattr(sys.modules[__name__], module, moduleDict[module])
-    
+
     testDict = testParser.TestParser(testName + ".test").parse()
     solutionDict = testParser.TestParser(testName + ".solution").parse()
     test_out_file = os.path.join('%s.test_output' % testName)
@@ -208,9 +209,9 @@ def runTest(testName, moduleDict, printTestCase=False, display=None):
     question = questionClass({'max_points': 0}, display)
     testCase = testClass(question, testDict)
 
-    if printTestCase: 
+    if printTestCase:
         printTest(testDict, solutionDict)
-    
+
     # This is a fragile hack to create a stub grades object
     grades = grading.Grades(projectParams.PROJECT_NAME, [(None,0)])
     testCase.execute(grades, moduleDict, solutionDict)
@@ -241,7 +242,7 @@ def getTestSubdirs(testParser, testRoot, questionToGrade):
 
 
 # evaluate student code
-def evaluate(generateSolutions, testRoot, moduleDict, exceptionMap=ERROR_HINT_MAP, edxOutput=False, muteOutput=False, 
+def evaluate(generateSolutions, testRoot, moduleDict, exceptionMap=ERROR_HINT_MAP, edxOutput=False, muteOutput=False,
             printTestCase=False, questionToGrade=None, display=None):
     # imports of testbench code.  note that the testClasses import must follow
     # the import of student code due to dependencies
@@ -249,7 +250,7 @@ def evaluate(generateSolutions, testRoot, moduleDict, exceptionMap=ERROR_HINT_MA
     import testClasses
     for module in moduleDict:
         setattr(sys.modules[__name__], module, moduleDict[module])
-    
+
     questions = []
     questionDicts = {}
     test_subdirs = getTestSubdirs(testParser, testRoot, questionToGrade)
@@ -257,7 +258,7 @@ def evaluate(generateSolutions, testRoot, moduleDict, exceptionMap=ERROR_HINT_MA
         subdir_path = os.path.join(testRoot, q)
         if not os.path.isdir(subdir_path) or q[0] == '.':
             continue
-            
+
         # create a question object
         questionDict = testParser.TestParser(os.path.join(subdir_path, 'CONFIG')).parse()
         questionClass = getattr(testClasses, questionDict['class'])
@@ -303,7 +304,7 @@ def evaluate(generateSolutions, testRoot, moduleDict, exceptionMap=ERROR_HINT_MA
             for prereq in questionDicts[q].get('depends', '').split():
                 grades.addPrereq(q, prereq)
 
-    grades.grade(sys.modules[__name__], bonusPic = projectParams.BONUS_PIC)      
+    grades.grade(sys.modules[__name__], bonusPic = projectParams.BONUS_PIC)
     return grades.points
 
 
@@ -314,12 +315,12 @@ def getDisplay(graphicsByDefault, options=None):
         if options.graphics:
             graphics = True
         if options.noGraphics:
-            graphics = False    
-    if graphics:        
+            graphics = False
+    if graphics:
         import graphicsDisplay
         return graphicsDisplay.PacmanGraphics(1, frameTime=.05)
     else:
-        import textDisplay        
+        import textDisplay
         return textDisplay.NullGraphics()
 
 
@@ -336,18 +337,18 @@ if __name__ == '__main__':
     #     moduleCodeDict[moduleName] = readFile(cp, root=options.codeRoot)
     # moduleCodeDict['projectTestClasses'] = readFile(options.testCaseCode, root=options.codeRoot)
     # moduleDict = loadModuleDict(moduleCodeDict)
-    
+
     moduleDict = {}
     for cp in codePaths:
         moduleName = re.match('.*?([^/]*)\.py', cp).group(1)
         moduleDict[moduleName] = loadModuleFile(moduleName, os.path.join(options.codeRoot, cp))
-    moduleName = re.match('.*?([^/]*)\.py', options.testCaseCode).group(1)     
-    moduleDict['projectTestClasses'] = loadModuleFile(moduleName, os.path.join(options.codeRoot, options.testCaseCode))    
-    
-    
+    moduleName = re.match('.*?([^/]*)\.py', options.testCaseCode).group(1)
+    moduleDict['projectTestClasses'] = loadModuleFile(moduleName, os.path.join(options.codeRoot, options.testCaseCode))
+
+
     if options.runTest != None:
         runTest(options.runTest, moduleDict, printTestCase=options.printTestCase, display=getDisplay(True, options))
     else:
-        evaluate(options.generateSolutions, options.testRoot, moduleDict, 
+        evaluate(options.generateSolutions, options.testRoot, moduleDict,
             edxOutput=options.edxOutput, muteOutput=options.muteOutput, printTestCase=options.printTestCase,
             questionToGrade=options.gradeQuestion, display=getDisplay(options.gradeQuestion!=None, options))
