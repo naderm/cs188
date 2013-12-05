@@ -62,9 +62,6 @@ class MiraClassifier:
         datum is a counter from features to values for those features
         representing a vector of values.
         """
-        def f_2_2(features):
-            return sum([i ** 2 for i in features.values()])
-
         weights = {}
         def train_c(c):
             print "Testing parameter C:", c
@@ -119,15 +116,3 @@ class MiraClassifier:
                 vectors[l] = self.weights[l] * datum
             guesses.append(vectors.argMax())
         return guesses
-
-
-    def findHighOddsFeatures(self, label1, label2):
-        """
-        Returns a list of the 100 features with the greatest difference in feature values
-                         w_label1 - w_label2
-
-        """
-        diff = self.weights[label1] - self.weights[label2]
-        for key, value in diff.items():
-            diff[key] = abs(value)
-        return diff.sortedKeys()[:100]
