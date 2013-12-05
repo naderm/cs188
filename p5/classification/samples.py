@@ -143,6 +143,24 @@ def loadLabelsFile(filename, n):
         labels.append(int(line))
     return labels
 
+def loadPacmanStatesFile(filename, n):
+    f = open(filename, 'r')
+    result = cPickle.load(f)
+    f.close()
+    return result
+
+import cPickle
+import pacmanAgents
+import ghostAgents
+import textDisplay
+from pacman import ClassicGameRules, GameState
+def loadPacmanData(filename, n):
+    """
+    Return game states from specified recorded games as data, and actions taken as labels
+    """
+    components = loadPacmanStatesFile(filename, n)
+    return components['states'][:n], components['actions'][:n]
+
 def asciiGrayscaleConversionFunction(value):
     """
     Helper function for display purposes.
