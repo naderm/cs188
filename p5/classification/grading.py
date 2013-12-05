@@ -42,10 +42,10 @@ class Grades:
     self.edxOutput = edxOutput
     self.mute = muteOutput
     self.prereqs = defaultdict(set)
-    
+
     #print 'Autograder transcript for %s' % self.project
     print 'Starting on %d-%d at %d:%02d:%02d' % self.start
-    
+
   def addPrereq(self, question, prereq):
     self.prereqs[question].add(prereq)
 
@@ -54,14 +54,14 @@ class Grades:
     Grades each question
       gradingModule: the module with all the grading functions (pass in with sys.modules[__name__])
     """
-    
+
     completedQuestions = set([])
     for q in self.questions:
       print '\nQuestion %s' % q
       print '=' * (9 + len(q))
       print
       self.currentQuestion = q
-      
+
       incompleted = self.prereqs[q].difference(completedQuestions)
       if len(incompleted) > 0:
           prereq = incompleted.pop()
@@ -70,7 +70,7 @@ class Grades:
 *** because Question %s builds upon your answer for Question %s.
 """ % (prereq, q, q, prereq)
           continue
-      
+
       if self.mute: util.mutePrint()
       try:
         util.TimeoutFunction(getattr(gradingModule, q),300)(self) # Call the question's function
@@ -82,16 +82,16 @@ class Grades:
         self.fail('FAIL: Terminated with a string exception.')
       finally:
         if self.mute: util.unmutePrint()
-      
+
       if self.points[q] >= self.maxes[q]:
         completedQuestions.add(q)
-        
+
       print '\n### Question %s: %d/%d ###\n' % (q, self.points[q], self.maxes[q])
-        
+
 
     print '\nFinished at %d:%02d:%02d' % time.localtime()[3:6]
     print "\nProvisional grades\n=================="
-    
+
     for q in self.questions:
       print 'Question %s: %d/%d' % (q, self.points[q], self.maxes[q])
     print '------------------'
@@ -105,35 +105,35 @@ class Grades:
                   ---      ----      ---
                   |  \    /  + \    /  |
                   | + \--/      \--/ + |
-                  |   +     +          |                   
-                  | +     +        +   |                  
-                @@@@@@@@@@@@@@@@@@@@@@@@@@                
-              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@              
-            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@            
-            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@          
-            \   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@          
-             \ /  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@        
-              V   \   @@@@@@@@@@@@@@@@@@@@@@@@@@@@        
-                   \ /  @@@@@@@@@@@@@@@@@@@@@@@@@@        
-                    V     @@@@@@@@@@@@@@@@@@@@@@@@        
-                            @@@@@@@@@@@@@@@@@@@@@@        
-                    /\      @@@@@@@@@@@@@@@@@@@@@@        
-                   /  \  @@@@@@@@@@@@@@@@@@@@@@@@@        
-              /\  /    @@@@@@@@@@@@@@@@@@@@@@@@@@@        
-             /  \ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@        
-            /    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@          
-            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@          
-            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@            
-              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@              
-                @@@@@@@@@@@@@@@@@@@@@@@@@@                
-                    @@@@@@@@@@@@@@@@@@            
+                  |   +     +          |
+                  | +     +        +   |
+                @@@@@@@@@@@@@@@@@@@@@@@@@@
+              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            \   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+             \ /  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+              V   \   @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                   \ /  @@@@@@@@@@@@@@@@@@@@@@@@@@
+                    V     @@@@@@@@@@@@@@@@@@@@@@@@
+                            @@@@@@@@@@@@@@@@@@@@@@
+                    /\      @@@@@@@@@@@@@@@@@@@@@@
+                   /  \  @@@@@@@@@@@@@@@@@@@@@@@@@
+              /\  /    @@@@@@@@@@@@@@@@@@@@@@@@@@@
+             /  \ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            /    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                @@@@@@@@@@@@@@@@@@@@@@@@@@
+                    @@@@@@@@@@@@@@@@@@
 
 """
     print """
 Your grades are NOT yet registered.  To register your grades, make sure
 to follow your instructor's guidelines to receive credit on your project.
 """
-    
+
     if self.edxOutput:
         self.produceOutput()
 
@@ -192,7 +192,7 @@ to follow your instructor's guidelines to receive credit on your project.
     for q in self.questions:
       if len(q) == 2:
           name = q[1]
-      else: 
+      else:
           name = q
       checkOrX = '<span class="incorrect"/>'
       if (self.points[q] == self.maxes[q]):
@@ -233,7 +233,7 @@ to follow your instructor's guidelines to receive credit on your project.
 
   def assignZeroCredit(self):
     self.points[self.currentQuestion] = 0
-  
+
   def addPoints(self, amt):
     self.points[self.currentQuestion] += amt
 
@@ -248,9 +248,9 @@ to follow your instructor's guidelines to receive credit on your project.
   def addMessage(self, message, raw=False):
     if not raw:
         # We assume raw messages, formatted for HTML, are printed separately
-        if self.mute: util.unmutePrint()      
+        if self.mute: util.unmutePrint()
         print '*** ' + message
-        if self.mute: util.mutePrint()        
+        if self.mute: util.mutePrint()
         message = cgi.escape(message)
     self.messages[self.currentQuestion].append(message)
 
