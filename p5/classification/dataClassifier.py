@@ -163,13 +163,35 @@ def enhancedPacmanFeatures(state, action):
     features = util.Counter()
 
     from pacman import Directions
-    features["Stop"] = int(action == Directions.STOP)
+    features["STOP"] = int(action == Directions.STOP) * 100
 
     from util import manhattanDistance
     successor = state.generateSuccessor(0, action)
     pac_pos = successor.getPacmanPosition()
-    features["ghost"] = min(manhattanDistance(pac_pos, ghost)
-                            for ghost in successor.getGhostPositions())
+    ghosts = successor.getGhostPositions()
+    capsules = successor.getCapsules()
+    food = [(x, y)
+            for x, row in enumerate(state.getFood())
+            for y, food in enumerate(row)
+            if food]
+
+    nearest_ghosts = sorted([manhattanDistance(pac_pos, i) for i in ghosts])
+
+    for i in xrange(min(len(nearest_ghosts), 1)):
+        features[("ghost", i)] = nearest_ghosts[i]
+
+    # for ghost in ghosts:
+    #     features[("ghost", ghost)] = manhattanDistance(pac_pos, ghost)
+
+    nearest_caps = sorted([manhattanDistance(pac_pos, i) for i in capsules])
+
+    for i in xrange(min(len(nearest_caps), 1)):
+        features[("capsule", i)] = nearest_caps[i]
+
+    nearest_food = sorted([manhattanDistance(pac_pos, i) for i in food])
+
+    for i in xrange(min(len(nearest_food), 5)):
+        features[("food", i)] = nearest_food[i]
 
     return features
 
@@ -218,7 +240,7 @@ def analysis(classifier, guesses, testLabels, testData, rawTestData, printImage)
         if (prediction != truth):
             print "==================================="
             print "Mistake on example %d" % i
-            print "Predicted %d; truth is %d" % (prediction, truth)
+            print "Predicted %s; truth is %s" % (prediction, truth)
             print "Image: "
             print rawTestData[i]
             break
