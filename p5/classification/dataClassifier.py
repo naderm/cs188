@@ -161,8 +161,16 @@ def enhancedPacmanFeatures(state, action):
     It should return a counter with { <feature name> : <feature value>, ... }
     """
     features = util.Counter()
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    from pacman import Directions
+    features["Stop"] = int(action == Directions.STOP)
+
+    from util import manhattanDistance
+    successor = state.generateSuccessor(0, action)
+    pac_pos = successor.getPacmanPosition()
+    features["ghost"] = min(manhattanDistance(pac_pos, ghost)
+                            for ghost in successor.getGhostPositions())
+
     return features
 
 
