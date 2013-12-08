@@ -168,30 +168,38 @@ def enhancedPacmanFeatures(state, action):
     pac_pos = successor.getPacmanPosition()
     ghosts = successor.getGhostPositions()
     capsules = successor.getCapsules()
+    state_food = state.getFood()
     food = [(x, y)
-            for x, row in enumerate(state.getFood())
+            for x, row in enumerate(state_food)
             for y, food in enumerate(row)
             if food]
 
     nearest_ghosts = sorted([util.manhattanDistance(pac_pos, i) for i in ghosts])
 
-    for i in xrange(min(len(nearest_ghosts), 1)):
-        features[("ghost", i)] = nearest_ghosts[i]
+    features["nearest_ghost"] = nearest_ghosts[0] * 1.0
 
-    # for ghost in ghosts:
-    #     features[("ghost", ghost)] = manhattanDistance(pac_pos, ghost)
+    for i in xrange(min(len(nearest_ghosts), 1)):
+        features[("ghost", i)] = 20 / (1 + nearest_ghosts[i])
 
     nearest_caps = sorted([util.manhattanDistance(pac_pos, i) for i in capsules])
 
     for i in xrange(min(len(nearest_caps), 1)):
-        features[("capsule", i)] = nearest_caps[i]
-
-    features["capsule count"] = len(capsules)
+        features[("capsule", i)] = 15 / (1 + nearest_caps[i])
 
     nearest_food = sorted([util.manhattanDistance(pac_pos, i) for i in food])
 
     for i in xrange(min(len(nearest_food), 5)):
-        features[("food", i)] = nearest_food[i]
+        features[("food", i)] = 0.9 * nearest_food[i]
+
+    features["capsule count"] = len(capsules)
+    # features[("pacman", pac_pos)]= 1
+
+    # for i in ghosts:
+    #     features[("ghost", i)] = 1
+    # for i in capsules:
+    #     features[("capsule", i)] = 1
+    # for i in food:
+    #     features[("food", i)] = 1
 
     return features
 
