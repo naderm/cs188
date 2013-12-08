@@ -179,7 +179,7 @@ def enhancedPacmanFeatures(state, action):
     features["nearest_ghost"] = nearest_ghosts[0] * 1.0
 
     for i in xrange(min(len(nearest_ghosts), 1)):
-        features[("ghost", i)] = 20 / (1 + nearest_ghosts[i])
+        features[("ghost", i)] = 5 / (0.1 + nearest_ghosts[i])
 
     nearest_caps = sorted([util.manhattanDistance(pac_pos, i) for i in capsules])
 
@@ -188,10 +188,13 @@ def enhancedPacmanFeatures(state, action):
 
     nearest_food = sorted([util.manhattanDistance(pac_pos, i) for i in food])
 
-    for i in xrange(min(len(nearest_food), 5)):
-        features[("food", i)] = 0.9 * nearest_food[i]
+    for i, weight in zip(xrange(min(len(nearest_food), 5)), [1.3, 0.8] + [0.9] * 3):
+        features[("food", i)] = weight * nearest_food[i]
 
-    features["capsule count"] = len(capsules)
+    features["capsule count"] = len(capsules) * 10
+    features["win"] = state.isWin()
+    features["lose"] = state.isLose()
+    features["score"] = state.getScore() * 10
     # features[("pacman", pac_pos)]= 1
 
     # for i in ghosts:
