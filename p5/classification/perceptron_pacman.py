@@ -51,8 +51,8 @@ class PerceptronClassifierPacman(PerceptronClassifier):
             print "Starting iteration ", iteration, "..."
             for data, correct in zip(trainingData, trainingLabels):
                 for label in data[1]:
-                    for feature in features:
-                        if data == correct:
-                            self.weights[feature] += data[0][label][feature]
+                    for feature, value in data[0][label].items():
+                        if label == correct:
+                            self.weights[feature] += value
                         else:
-                            self.weights[feature] -= data[0][label][feature]
+                            self.weights[feature] -= value
