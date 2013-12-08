@@ -24,7 +24,7 @@ import mira
 import samples
 import sys
 import util
-from pacman import GameState
+from pacman import GameState, Directions
 
 TEST_SET_SIZE = 100
 DIGIT_DATUM_WIDTH=28
@@ -162,10 +162,8 @@ def enhancedPacmanFeatures(state, action):
     """
     features = util.Counter()
 
-    from pacman import Directions
     features["STOP"] = int(action == Directions.STOP) * 100
 
-    from util import manhattanDistance
     successor = state.generateSuccessor(0, action)
     pac_pos = successor.getPacmanPosition()
     ghosts = successor.getGhostPositions()
@@ -175,7 +173,7 @@ def enhancedPacmanFeatures(state, action):
             for y, food in enumerate(row)
             if food]
 
-    nearest_ghosts = sorted([manhattanDistance(pac_pos, i) for i in ghosts])
+    nearest_ghosts = sorted([util.manhattanDistance(pac_pos, i) for i in ghosts])
 
     for i in xrange(min(len(nearest_ghosts), 1)):
         features[("ghost", i)] = nearest_ghosts[i]
@@ -183,12 +181,14 @@ def enhancedPacmanFeatures(state, action):
     # for ghost in ghosts:
     #     features[("ghost", ghost)] = manhattanDistance(pac_pos, ghost)
 
-    nearest_caps = sorted([manhattanDistance(pac_pos, i) for i in capsules])
+    nearest_caps = sorted([util.manhattanDistance(pac_pos, i) for i in capsules])
 
     for i in xrange(min(len(nearest_caps), 1)):
         features[("capsule", i)] = nearest_caps[i]
 
-    nearest_food = sorted([manhattanDistance(pac_pos, i) for i in food])
+    features["capsule count"] = len(capsules)
+
+    nearest_food = sorted([util.manhattanDistance(pac_pos, i) for i in food])
 
     for i in xrange(min(len(nearest_food), 5)):
         features[("food", i)] = nearest_food[i]
